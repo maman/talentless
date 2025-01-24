@@ -1,0 +1,17 @@
+name: Clock Out 🕕
+
+on:
+  schedule:
+  - cron: 0 11 * * 1-5
+
+concurrency:
+  group: clockout
+  cancel-in-progress: false
+
+jobs:
+  Clock Out:
+    name: Clocking out 🕕
+    uses: ./.github/workflows/runner.yml
+    with:
+      action: clockout
+    secrets: inherit

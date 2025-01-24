@@ -1,0 +1,45 @@
+name: Runner 🤲
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        type: choice
+        required: true
+        description: "Action to perform"
+        options:
+          - clockin
+          - clockout
+  workflow_call:
+    inputs:
+      action:
+        type: string
+        required: true
+
+concurrency:
+  group: runner
+  cancel-in-progress: false
+
+jobs:
+  Run Automation:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code 📁
+        uses: actions/checkout@v4
+      - name: Setup NodeJS 💻
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".tool-versions"
+          cache: "yarn"
+      - name: Install dependencies 📦
+        run: yarn install --frozen-lockfile
+      - name: Running action 💨
+        run: node --no-warnings index.ts -p ${{ inputs.action }}
+        env:
+          HEADLESS: 1
+          TALENTLESS_EMAIL: ${{ secrets.TALENTLESS_EMAIL }}
+          TALENTLESS_PASSWORD: ${{ secrets.TALENTLESS_PASSWORD }}
+          TALENTLESS_PERSONAL_CALENDAR_LINK: ${{ secrets.TALENTLESS_PERSONAL_CALENDAR_LINK }}
+          TALENTLESS_LAT: ${{ secrets.TALENTLESS_LAT }}
+          TALENTLESS_LNG: ${{ secrets.TALENTLESS_LNG }}
+

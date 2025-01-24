@@ -1,0 +1,17 @@
+name: Clock In 🕘
+
+on:
+  schedule:
+  - cron: 50 1 * * 1-5
+
+concurrency:
+  group: clockin
+  cancel-in-progress: false
+
+jobs:
+  Clock In:
+    name: Clocking in 🕘
+    uses: ./.github/workflows/runner.yml
+    with:
+      action: clockin
+    secrets: inherit
