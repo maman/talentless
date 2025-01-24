@@ -16,7 +16,7 @@ async function getCalendarEvents(date: Date, url: string) {
         },
       },
       (err, data) => {
-        if (err) reject(err);
+        if (err) reject(err.message);
         else {
           const events = Object.values(data).filter((event) => {
             if (event.type !== "VEVENT") return false;
