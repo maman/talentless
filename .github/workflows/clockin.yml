@@ -9,7 +9,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  Clock In:
+  clockin:
     name: Clocking in 🕘
     uses: ./.github/workflows/runner.yml
     with:

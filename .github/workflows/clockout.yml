@@ -9,7 +9,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  Clock Out:
+  clockout:
     name: Clocking out 🕕
     uses: ./.github/workflows/runner.yml
     with:
