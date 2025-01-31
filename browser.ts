@@ -7,6 +7,8 @@ const HOME_URL = "https://hr.talenta.co";
 const EMAIL_SELECTOR = "#user_email";
 const PASSWORD_SELECTOR = "#user_password";
 const SIGNIN_BUTTON_SELECTOR = "#new-signin-button";
+const PHASE_BUTTONS_SELECTOR = "button.btn.btn-primary.btn-block";
+const CHECK_TAG_SELECTOR = "p.schedule-time__type";
 
 export type Phase = "clockin" | "clockout";
 
@@ -24,12 +26,14 @@ export async function execute({
   password,
   lat,
   lng,
+  checkTag,
 }: {
   phase: Phase;
   email: string;
   password: string;
   lat: string;
   lng: string;
+  checkTag?: string;
 }) {
   const browser = await puppeteer.launch({
     headless: process.env.HEADLESS === "1",
@@ -71,25 +75,29 @@ export async function execute({
   });
   const textarea = await liveAttendancePage.$("textarea.form-control");
   if (textarea) {
-    const buttons = await liveAttendancePage.$$(
-      "button.btn.btn-primary.btn-block",
+    const scheduleTimeType = await liveAttendancePage.$eval(
+      CHECK_TAG_SELECTOR,
+      (el) => el.textContent?.trim().toLowerCase(),
     );
-    for await (const button of buttons) {
-      const btnText = await liveAttendancePage.evaluate(
-        (el) => el.querySelector("span")?.textContent?.trim(),
-        button,
-      );
-      if (btnText === "Clock In" && phase === "clockin") {
-        console.log("Found clockin button");
-        await delay(2000);
-        await button.click();
-        break;
-      }
-      if (btnText === "Clock Out" && phase === "clockout") {
-        console.log("Found clockout button");
-        await delay(2000);
-        await button.click();
-        break;
+    if (scheduleTimeType === checkTag) {
+      const buttons = await liveAttendancePage.$$(PHASE_BUTTONS_SELECTOR);
+      for await (const button of buttons) {
+        const btnText = await liveAttendancePage.evaluate(
+          (el) => el.querySelector("span")?.textContent?.trim(),
+          button,
+        );
+        if (btnText === "Clock In" && phase === "clockin") {
+          console.log("Found clockin button");
+          await delay(2000);
+          await button.click();
+          break;
+        }
+        if (btnText === "Clock Out" && phase === "clockout") {
+          console.log("Found clockout button");
+          await delay(2000);
+          await button.click();
+          break;
+        }
       }
     }
     await delay(800);

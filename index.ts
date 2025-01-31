@@ -1,6 +1,7 @@
 import { parseArgs } from "node:util";
+import type { CalendarComponent } from "node-ical";
 import { type Phase, execute } from "./browser.ts";
-import { loadEvents } from "./calendar.ts";
+import { getCalendarEvents } from "./calendar.ts";
 
 const { values: args } = parseArgs({
   strict: true,
@@ -14,6 +15,7 @@ const { values: args } = parseArgs({
       short: "l",
       default: process.env.TALENTLESS_PERSONAL_CALENDAR_LINK,
     },
+    checkTag: { type: "string", default: "ofc", short: "c" },
     phase: { type: "string", short: "p" },
     help: { type: "boolean", short: "h" },
     version: { type: "boolean", short: "v" },
@@ -30,8 +32,14 @@ if (args.help) {
   process.exit(0);
 }
 
-if (!args.email || !args.password || !args.lat || !args.lng) {
-  console.error("email, password, lat, and lng are required");
+if (
+  !args.email?.length ||
+  !args.password?.length ||
+  !args.lat?.length ||
+  !args.lng?.length ||
+  !args.checkTag?.length
+) {
+  console.error("email, password, lat, lng, and checkTag are required");
   process.exit(1);
 }
 
@@ -45,15 +53,21 @@ if (args.phase !== "clockin" && args.phase !== "clockout") {
   process.exit(1);
 }
 
-const events = await loadEvents(new Date(), args.personalCalendarLink);
+let events: Array<CalendarComponent> = [];
+if (args.personalCalendarLink?.length) {
+  console.log("Checking personal calendar ...");
+  events = await getCalendarEvents(new Date(), args.personalCalendarLink);
+}
 if (!events.length) {
   try {
+    console.log(`Performing ${args.phase} ...`);
     await execute({
       phase: args.phase as Phase,
       email: args.email,
       password: args.password,
       lat: args.lat,
       lng: args.lng,
+      checkTag: args.checkTag,
     });
     console.log(`${args.phase} executed successfully`);
     process.exit(0);
@@ -62,6 +76,6 @@ if (!events.length) {
     process.exit(1);
   }
 } else {
-  console.log(`No need to execute: ${JSON.stringify(events)}`);
+  console.log(`No need to execute: ${JSON.stringify(events, null, 2)}`);
   process.exit(0);
 }

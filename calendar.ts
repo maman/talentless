@@ -3,7 +3,7 @@ import ical from "node-ical";
 
 const DEFAULT_TZ = "Asia/Jakarta";
 
-async function getCalendarEvents(date: Date, url: string) {
+export async function getCalendarEvents(date: Date, url: string) {
   const today = DateTime.fromJSDate(date).setZone(DEFAULT_TZ);
   // skip sat / sun
   if (today.weekday >= 6) return [];
@@ -31,18 +31,4 @@ async function getCalendarEvents(date: Date, url: string) {
       },
     );
   });
-}
-
-export async function loadEvents(date: Date, personalCalendarLink?: string) {
-  const holidayCalendarLink =
-    "https://calendar.google.com/calendar/ical/en.indonesian%23holiday%40group.v.calendar.google.com/public/basic.ics";
-  const [holidayCalendar, personalCalendar] = await Promise.all(
-    [
-      getCalendarEvents(date, holidayCalendarLink),
-      personalCalendarLink?.length
-        ? getCalendarEvents(date, personalCalendarLink)
-        : null,
-    ].filter(Boolean),
-  );
-  return [...(holidayCalendar || []), ...(personalCalendar || [])];
 }
