@@ -42,4 +42,12 @@ jobs:
           TALENTLESS_PERSONAL_CALENDAR_LINK: ${{ secrets.TALENTLESS_PERSONAL_CALENDAR_LINK }}
           TALENTLESS_LAT: ${{ secrets.TALENTLESS_LAT }}
           TALENTLESS_LNG: ${{ secrets.TALENTLESS_LNG }}
+      - name: Notify Errors 🚨
+        if: ${{ failure() }}
+        run: |
+          curl -H "Title: Talentless Runner Failed: ${{ inputs.action }}" \
+               -H "Priority: high" \
+               -H "Tags: rotating_light,talentless" \
+               -d "The runner workflow has failed: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\n\nError: ${{ steps.*.outcome }}\n\nDetails: ${{ steps.*.conclusion }}" \
+               https://ntfy.sh/${{ secrets.NTFY_TOPIC }}
 
