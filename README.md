@@ -8,6 +8,7 @@ Will skip clocking in/out on weekends & public holidays. Support custom calendar
 
 1. Create new repository based on this template
 2. Setup github action secrets:
+    - `NTFY_TOPIC` ([ntfy.sh](https://docs.ntfy.sh/) topic to send failure notification to)
     - `TALENTLESS_EMAIL`
     - `TALENTLESS_PASSWORD`
     - `TALENTLESS_LAT`
