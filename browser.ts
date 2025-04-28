@@ -1,4 +1,6 @@
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-extra";
+import RecaptchaPlugin from "puppeteer-extra-plugin-recaptcha";
+import StealthPlugin from "puppeteer-extra-plugin-stealth";
 
 const LIVE_ATTENDANCE_URL = "https://hr.talenta.co/live-attendance";
 const SIGNIN_URL = "https://account.mekari.com/users/sign_in";
@@ -35,6 +37,10 @@ export async function execute({
   lng: string;
   checkTag?: string;
 }) {
+  puppeteer.use(StealthPlugin());
+  // puppeteer.use(RecaptchaPlugin({
+  //   visualFeedback: true,
+  // }));
   const browser = await puppeteer.launch({
     headless: process.env.HEADLESS === "1",
     handleSIGTERM: true,
