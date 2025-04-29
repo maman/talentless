@@ -1,5 +1,4 @@
 import puppeteer from "puppeteer-extra";
-import RecaptchaPlugin from "puppeteer-extra-plugin-recaptcha";
 import StealthPlugin from "puppeteer-extra-plugin-stealth";
 
 const LIVE_ATTENDANCE_URL = "https://hr.talenta.co/live-attendance";
@@ -17,6 +16,12 @@ export type Phase = "clockin" | "clockout";
 export class NoAttendanceTextareaError extends Error {
   constructor() {
     super("No attendance textarea found");
+  }
+}
+
+export class NoActivityLogError extends Error {
+  constructor() {
+    super("No activity log found");
   }
 }
 
@@ -38,9 +43,6 @@ export async function execute({
   checkTag?: string;
 }) {
   puppeteer.use(StealthPlugin());
-  // puppeteer.use(RecaptchaPlugin({
-  //   visualFeedback: true,
-  // }));
   const browser = await puppeteer.launch({
     headless: process.env.HEADLESS === "1",
     handleSIGTERM: true,
@@ -104,6 +106,15 @@ export async function execute({
           await button.click();
           break;
         }
+      }
+      await delay(5000);
+      const activityLogSelector = "#tl-live-attendance-index ul";
+      const activityLogUlCount = await liveAttendancePage.$eval(
+        activityLogSelector,
+        (ul) => ul.children.length,
+      );
+      if (!activityLogUlCount) {
+        throw new NoActivityLogError();
       }
     }
     await delay(800);
